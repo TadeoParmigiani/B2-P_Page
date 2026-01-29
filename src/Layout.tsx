@@ -7,9 +7,9 @@ import './index.css'
 
 function Layout() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen w-full">
       <Header />
-      <div className="pt-16">
+      <div className="pt-16 w-full">
         <HeroSection />
         <BookingSection />
         <InfoPageSection />

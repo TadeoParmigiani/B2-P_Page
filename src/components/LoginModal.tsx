@@ -24,17 +24,17 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
       <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-[var(--gray-900)]">Iniciar sesión</h3>
+          <h3 className="text-xl font-bold text-(--gray-900)">Iniciar sesión</h3>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-[var(--gray-100)] rounded-lg transition-colors"
+            className="p-2 hover:bg-(--gray-100) rounded-lg transition-colors"
           >
-            <svg className="w-5 h-5 text-[var(--gray-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-(--gray-500)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -43,14 +43,14 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
         {/* Login Form */}
         <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
           <div>
-            <label htmlFor="login-email" className="block text-sm font-medium text-[var(--gray-700)] mb-1">
+            <label htmlFor="login-email" className="block text-sm font-medium text-(--gray-700) mb-1">
               Email
             </label>
             <input
               id="login-email"
               type="email"
               {...loginForm.register("email", { required: "El email es requerido" })}
-              className="w-full px-4 py-2 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="tu@email.com"
             />
             {loginForm.formState.errors.email && (
@@ -59,14 +59,14 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
           </div>
 
           <div>
-            <label htmlFor="login-password" className="block text-sm font-medium text-[var(--gray-700)] mb-1">
+            <label htmlFor="login-password" className="block text-sm font-medium text-(--gray-700) mb-1">
               Contraseña
             </label>
             <input
               id="login-password"
               type="password"
               {...loginForm.register("password", { required: "La contraseña es requerida" })}
-              className="w-full px-4 py-2 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
             />
             {loginForm.formState.errors.password && (
@@ -76,12 +76,12 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
 
           <button
             type="submit"
-            className="w-full bg-[var(--primary)] hover:bg-[var(--green-600)] text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            className="w-full bg-primary hover:bg-(--green-600) text-white font-medium py-2 px-4 rounded-lg transition-colors"
           >
             Iniciar sesión
           </button>
 
-          <p className="text-center text-sm text-[var(--gray-600)]">
+          <p className="text-center text-sm text-(--gray-600)">
             ¿No tenés cuenta?{" "}
             <button
               type="button"
@@ -89,7 +89,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
                 loginForm.reset();
                 onSwitchToRegister();
               }}
-              className="text-[var(--primary)] hover:underline font-medium"
+              className="text-primary hover:underline font-medium"
             >
               Registrate
             </button>

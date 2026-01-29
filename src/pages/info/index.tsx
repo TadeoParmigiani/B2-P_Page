@@ -91,8 +91,8 @@ function InfoPageSection() {
       id: "ubicacion",
       title: "Ubicación",
       content: (
-        <p className="text-[var(--gray-600)]">
-          Av. Dante Alighieri 2485, Rosario, Argentina
+        <p className="text-(--gray-600)">
+          Blvd. 27 de Febrero 2672, Rosario, Argentina
         </p>
       ),
     },
@@ -100,11 +100,11 @@ function InfoPageSection() {
       id: "horarios",
       title: "Horarios del Club",
       content: (
-        <div className="space-y-2 text-[var(--gray-600)]">
-          <p><strong>Lunes, Martes, Miércoles, Jueves, Viernes</strong> 8:00 a 1:00 am</p>
-          <p><strong>Domingo:</strong> 9:00 a 22:00</p>
-          <p><strong>Sábado:</strong> 9:00 a 1:00 am</p>
-          <p><strong>Feriados:</strong> 8:00 a 1:00 am</p>
+        <div className="space-y-2 text-(--gray-600)">
+          <p><strong>Lunes, Martes, Miércoles, Jueves, Viernes</strong> 8:00 am a 12:00 pm</p>
+          <p><strong>Domingo:</strong> 9:00 am a 12:00 pm</p>
+          <p><strong>Sábado:</strong> 9:00 am a 12:00 pm</p>
+          <p><strong>Feriados:</strong> 8:00 am a 12:00 pm</p>
         </div>
       ),
     },
@@ -114,7 +114,7 @@ function InfoPageSection() {
       content: (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {services.map((service) => (
-            <div key={service.label} className="flex items-center gap-2 text-[var(--gray-600)]">
+            <div key={service.label} className="flex items-center gap-2 text-(--gray-600)">
               <service.icon />
               <span>{service.label}</span>
             </div>
@@ -129,32 +129,32 @@ function InfoPageSection() {
   };
 
   return (
-    <section id="info" className="py-12 px-4 bg-[var(--gray-100)]">
+    <section id="info" className="py-12 px-4 bg-(--gray-100)">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-[var(--gray-900)] mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-(--gray-900) mb-8">
           Donde estamos
         </h2>
 
         <div className="grid lg:grid-cols-5 gap-6">
           {/* Map */}
-          <div className="lg:col-span-3 bg-white rounded-lg overflow-hidden border border-[var(--gray-200)]">
-            <div className="p-4 border-b border-[var(--gray-200)]">
-              <p className="font-semibold text-[var(--gray-900)]">32 57'43.2"S 60 39'39.5"W</p>
-              <p className="text-sm text-[var(--gray-500)]">28QQ+5JR Rosario, Santa Fe</p>
+          <div className="lg:col-span-3 bg-white rounded-lg overflow-hidden border border-(--gray-200)">
+            <div className="p-4 border-b border-(--gray-200)">
+              <p className="font-semibold text-(--gray-900)">32 57'43.2"S 60 39'39.5"W</p>
+              <p className="text-sm text-(--gray-500)">28QQ+5JR Rosario, Santa Fe</p>
               <div className="flex gap-4 mt-2">
                 <a 
-                  href="https://maps.google.com/?q=-32.9620,-60.6610"
+                  href="https://maps.app.goo.gl/akz61AG7e5fBu3fE8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--primary)] hover:text-[var(--green-600)] text-sm font-medium"
+                  className="text-primary hover:text-(--green-600) text-sm font-medium"
                 >
                   Cómo llegar
                 </a>
                 <a 
-                  href="https://maps.google.com/?q=-32.9620,-60.6610"
+                  href="https://maps.app.goo.gl/akz61AG7e5fBu3fE8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--primary)] hover:text-[var(--green-600)] text-sm font-medium"
+                  className="text-primary hover:text-(--green-600) text-sm font-medium"
                 >
                   Ampliar el mapa
                 </a>
@@ -178,16 +178,16 @@ function InfoPageSection() {
             {accordionItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-lg border border-[var(--gray-200)] overflow-hidden"
+                className="bg-white rounded-lg border border-(--gray-200) overflow-hidden"
               >
                 <button
                   type="button"
                   onClick={() => toggleAccordion(item.id)}
-                  className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--gray-50)] transition-colors"
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-(--gray-50) transition-colors"
                 >
-                  <span className="font-semibold text-[var(--gray-900)]">{item.title}</span>
+                  <span className="font-semibold text-(--gray-900)">{item.title}</span>
                   <svg
-                    className={`w-5 h-5 text-[var(--gray-500)] transition-transform ${
+                    className={`w-5 h-5 text-(--gray-500) transition-transform ${
                       openAccordion === item.id ? "rotate-180" : ""
                     }`}
                     fill="none"

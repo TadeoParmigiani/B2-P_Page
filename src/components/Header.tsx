@@ -24,23 +24,23 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--gray-900)]/95 backdrop-blur-sm border-b border-[var(--gray-800)]">
-        <div className="max-w-7xl mx-auto px-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-(--gray-900)/95 backdrop-blur-sm border-b border-(--gray-800)">
+        <div className="max-w-8xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <a href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-[var(--primary)]">b2-p</span>
+              <span className="text-2xl font-bold text-primary">B2-P</span>
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#reservar" className="text-white hover:text-[var(--primary)] transition-colors">
+            <nav className="hidden md:flex items-center gap-10">
+              <a href="#reservar" className="text-white hover:text-primary transition-colors">
                 Reservar
               </a>
-              <a href="#info" className="text-white hover:text-[var(--primary)] transition-colors">
+              <a href="#info" className="text-white hover:text-primary transition-colors">
                 Información
               </a>
-              <a href="#contacto" className="text-white hover:text-[var(--primary)] transition-colors">
+              <a href="#contacto" className="text-white hover:text-primary transition-colors">
                 Contacto
               </a>
             </nav>
@@ -50,7 +50,7 @@ export function Header() {
               <button
                 type="button"
                 onClick={openLogin}
-                className="inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--green-600)] text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -78,26 +78,26 @@ export function Header() {
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-[var(--gray-800)]">
+            <div className="md:hidden py-4 border-t border-(--gray-800)">
               <nav className="flex flex-col gap-4">
                 <a
                   href="#reservar"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-white hover:text-[var(--primary)] transition-colors"
+                  className="text-white hover:text-primary transition-colors"
                 >
                   Reservar
                 </a>
                 <a
                   href="#info"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-white hover:text-[var(--primary)] transition-colors"
+                  className="text-white hover:text-primary transition-colors"
                 >
                   Información
                 </a>
                 <a
                   href="#contacto"
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-white hover:text-[var(--primary)] transition-colors"
+                  className="text-white hover:text-primary transition-colors"
                 >
                   Contacto
                 </a>
@@ -107,7 +107,7 @@ export function Header() {
                     setIsMenuOpen(false);
                     openLogin();
                   }}
-                  className="inline-flex items-center justify-center gap-2 bg-[var(--primary)] hover:bg-[var(--green-600)] text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

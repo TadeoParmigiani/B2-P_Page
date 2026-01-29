@@ -104,21 +104,21 @@ function BookingSection() {
   return (
     <section id="reservar" className="py-12 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-[var(--gray-900)] mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-(--gray-900) mb-8">
           Elige tu turno
         </h2>
 
         {/* Controls */}
-        <div className="bg-white border border-[var(--gray-200)] rounded-lg p-4 mb-6">
+        <div className="bg-white border border-(--gray-200) rounded-lg p-4 mb-6">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             {/* Sport Filter Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 px-4 py-2 border border-[var(--gray-200)] rounded-lg hover:bg-[var(--gray-100)] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 border border-(--gray-200) rounded-lg hover:bg-(--gray-100) transition-colors"
               >
-                <svg className="w-5 h-5 text-[var(--primary)]" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor">
                   <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
                   <path d="M12 2C12 2 12 6 8 8C4 10 2 12 2 12" fill="none" stroke="currentColor" strokeWidth="1.5"/>
                   <path d="M12 22C12 22 12 18 16 16C20 14 22 12 22 12" fill="none" stroke="currentColor" strokeWidth="1.5"/>
@@ -130,8 +130,8 @@ function BookingSection() {
                 </svg>
               </button>
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-[var(--gray-200)] rounded-lg shadow-lg z-10">
-                  {["Fútbol", "Futsal", "Fútbol 5", "Fútbol 7", "Fútbol 11"].map((sport) => (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-(--gray-200) rounded-lg shadow-lg z-10">
+                  {["Fútbol"].map((sport) => (
                     <button
                       key={sport}
                       type="button"
@@ -139,7 +139,7 @@ function BookingSection() {
                         setSportFilter(sport);
                         setIsDropdownOpen(false);
                       }}
-                      className="block w-full text-left px-4 py-2 hover:bg-[var(--gray-100)] transition-colors first:rounded-t-lg last:rounded-b-lg"
+                      className="block w-full text-left px-4 py-2 hover:bg-(--gray-100) transition-colors first:rounded-t-lg last:rounded-b-lg"
                     >
                       {sport}
                     </button>
@@ -154,14 +154,14 @@ function BookingSection() {
         </div>
 
         {/* Booking Grid */}
-        <div className="bg-white border border-[var(--gray-200)] rounded-lg overflow-hidden">
+        <div className="bg-white border border-(--gray-200) rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
+            <table className="w-full min-w-225">
               <thead>
-                <tr className="border-b border-[var(--gray-200)]">
-                  <th className="text-left p-4 w-48 bg-[var(--gray-50)]"></th>
+                <tr className="border-b border-(--gray-200)">
+                  <th className="text-left p-4 w-48 bg-(--gray-50)"></th>
                   {hours.map((hour) => (
-                    <th key={hour} className="p-2 text-center text-sm font-medium text-[var(--gray-600)] bg-[var(--gray-50)] min-w-[50px]">
+                    <th key={hour} className="p-2 text-center text-sm font-medium text-(--gray-600) bg-(--gray-50) min-w-12.5">
                       {hour === 24 ? "00" : hour.toString().padStart(2, "0")}
                     </th>
                   ))}
@@ -169,10 +169,10 @@ function BookingSection() {
               </thead>
               <tbody>
                 {canchas.map((cancha) => (
-                  <tr key={cancha.id} className="border-b border-[var(--gray-100)] last:border-b-0">
+                  <tr key={cancha.id} className="border-b border-(--gray-100) last:border-b-0">
                     <td className="p-4">
-                      <div className="font-semibold text-[var(--gray-900)]">{cancha.name}</div>
-                      <div className="text-sm text-[var(--gray-500)]">{cancha.description}</div>
+                      <div className="font-semibold text-(--gray-900)">{cancha.name}</div>
+                      <div className="text-sm text-(--gray-500)">{cancha.description}</div>
                     </td>
                     {hours.map((hour) => {
                       const status = getSlotStatus(hour, cancha.id);
@@ -197,11 +197,11 @@ function BookingSection() {
                             className={`w-full h-8 rounded transition-all ${
                               status === "available"
                                 ? isSelected
-                                  ? "bg-[var(--primary)] ring-2 ring-[var(--primary)] ring-offset-2"
-                                  : "hover:bg-[var(--gray-200)] cursor-pointer"
+                                  ? "bg-primary ring-2 ring-primary ring-offset-2"
+                                  : "hover:bg-(--gray-200) cursor-pointer"
                                 : status === "booked"
-                                ? "bg-[var(--gray-400)] cursor-not-allowed"
-                                : "bg-[var(--primary)] cursor-not-allowed"
+                                ? "bg-(--gray-400) cursor-not-allowed"
+                                : "bg-primary cursor-not-allowed"
                             }`}
                             aria-label={`${cancha.name} a las ${hour}:00 - ${status === "available" ? "Disponible" : "No disponible"}`}
                           />
@@ -228,12 +228,12 @@ function BookingSection() {
 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 bg-[var(--gray-400)] rounded"></div>
-              <span className="text-sm text-[var(--gray-600)]">No disponible</span>
+              <div className="w-6 h-4 bg-(--gray-400) rounded"></div>
+              <span className="text-sm text-(--gray-600)">No disponible</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 bg-[var(--primary)] rounded"></div>
-              <span className="text-sm text-[var(--gray-600)]">Tu reserva</span>
+              <div className="w-6 h-4 bg-primary rounded"></div>
+              <span className="text-sm text-(--gray-600)">Tu reserva</span>
             </div>
           </div>
         </div>
@@ -244,35 +244,35 @@ function BookingSection() {
             <div className="bg-white rounded-xl p-6 max-w-md w-full">
               {/* Header del modal */}
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-[var(--gray-900)]">Confirmar Reserva</h3>
+                <h3 className="text-xl font-bold text-(--gray-900)">Confirmar Reserva</h3>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="p-2 hover:bg-[var(--gray-100)] rounded-lg transition-colors"
+                  className="p-2 hover:bg-(--gray-100) rounded-lg transition-colors"
                 >
-                  <svg className="w-5 h-5 text-[var(--gray-500)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-(--gray-500)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
               {/* Datos de la reserva (pre-seteados) */}
-              <div className="bg-[var(--gray-100)] rounded-lg p-4 mb-6 space-y-2">
+              <div className="bg-(--gray-100) rounded-lg p-4 mb-6 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-[var(--gray-500)]">Cancha:</span>
-                  <span className="font-medium text-[var(--gray-900)]">
+                  <span className="text-(--gray-500)">Cancha:</span>
+                  <span className="font-medium text-(--gray-900)">
                     {canchas.find((c) => c.id === selectedSlot.canchaId)?.name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--gray-500)]">Fecha:</span>
-                  <span className="font-medium text-[var(--gray-900)]">
+                  <span className="text-(--gray-500)">Fecha:</span>
+                  <span className="font-medium text-(--gray-900)">
                     {selectedDate.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--gray-500)]">Hora:</span>
-                  <span className="font-medium text-[var(--gray-900)]">
+                  <span className="text-(--gray-500)">Hora:</span>
+                  <span className="font-medium text-(--gray-900)">
                     {selectedSlot.hour}:00 - {selectedSlot.hour + 1}:00
                   </span>
                 </div>
@@ -281,14 +281,14 @@ function BookingSection() {
               {/* Formulario para nombre y apellido */}
               <form onSubmit={reservaForm.handleSubmit(onSubmitReserva)} className="space-y-4">
                 <div>
-                  <label htmlFor="reserva-nombre" className="block text-sm font-medium text-[var(--gray-700)] mb-1">
+                  <label htmlFor="reserva-nombre" className="block text-sm font-medium text-(--gray-700) mb-1">
                     Nombre
                   </label>
                   <input
                     id="reserva-nombre"
                     type="text"
                     {...reservaForm.register("nombre", { required: "El nombre es requerido" })}
-                    className="w-full px-4 py-2 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Tu nombre"
                   />
                   {reservaForm.formState.errors.nombre && (
@@ -297,14 +297,14 @@ function BookingSection() {
                 </div>
 
                 <div>
-                  <label htmlFor="reserva-apellido" className="block text-sm font-medium text-[var(--gray-700)] mb-1">
+                  <label htmlFor="reserva-apellido" className="block text-sm font-medium text-(--gray-700) mb-1">
                     Apellido
                   </label>
                   <input
                     id="reserva-apellido"
                     type="text"
                     {...reservaForm.register("apellido", { required: "El apellido es requerido" })}
-                    className="w-full px-4 py-2 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="Tu apellido"
                   />
                   {reservaForm.formState.errors.apellido && (
@@ -316,13 +316,13 @@ function BookingSection() {
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="flex-1 px-4 py-2 border border-[var(--gray-300)] rounded-lg hover:bg-[var(--gray-100)] transition-colors font-medium"
+                    className="flex-1 px-4 py-2 border border-(--gray-300) rounded-lg hover:bg-(--gray-100) transition-colors font-medium"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--green-600)] transition-colors font-medium"
+                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-(--green-600) transition-colors font-medium"
                   >
                     Confirmar Reserva
                   </button>
