@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { registerSchema } from "../validations/register";
 
 interface RegisterFormData {
   nombre: string;
@@ -18,10 +19,18 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
   const registerForm = useForm<RegisterFormData>();
 
   const onRegister = (data: RegisterFormData) => {
-    if (data.password !== data.confirmPassword) {
-      registerForm.setError("confirmPassword", { message: "Las contraseñas no coinciden" });
+    const { error } = registerSchema.validate(data, { abortEarly: false });
+    
+    if (error) {
+      error.details.forEach((detail) => {
+        registerForm.setError(detail.path[0] as keyof RegisterFormData, {
+          type: "manual",
+          message: detail.message,
+        });
+      });
       return;
     }
+
     console.log("Register:", data);
     alert(`Cuenta creada para: ${data.email}`);
     onClose();
@@ -57,7 +66,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               <input
                 id="register-nombre"
                 type="text"
-                {...registerForm.register("nombre", { required: "El nombre es requerido" })}
+                {...registerForm.register("nombre")}
                 className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Juan"
               />
@@ -72,7 +81,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               <input
                 id="register-apellido"
                 type="text"
-                {...registerForm.register("apellido", { required: "El apellido es requerido" })}
+                {...registerForm.register("apellido")}
                 className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Pérez"
               />
@@ -89,7 +98,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
             <input
               id="register-email"
               type="email"
-              {...registerForm.register("email", { required: "El email es requerido" })}
+              {...registerForm.register("email")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="tu@email.com"
             />
@@ -105,7 +114,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
             <input
               id="register-password"
               type="password"
-              {...registerForm.register("password", { required: "La contraseña es requerida", minLength: { value: 6, message: "Mínimo 6 caracteres" } })}
+              {...registerForm.register("password")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
             />
@@ -121,7 +130,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
             <input
               id="register-confirm"
               type="password"
-              {...registerForm.register("confirmPassword", { required: "Confirmá tu contraseña" })}
+              {...registerForm.register("confirmPassword")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
             />

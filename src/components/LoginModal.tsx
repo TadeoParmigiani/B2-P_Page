@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { loginSchema } from "../validations/login";
 
 interface LoginFormData {
   email: string;
@@ -15,6 +16,18 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
   const loginForm = useForm<LoginFormData>();
 
   const onLogin = (data: LoginFormData) => {
+    const { error } = loginSchema.validate(data, { abortEarly: false });
+    
+    if (error) {
+      error.details.forEach((detail) => {
+        loginForm.setError(detail.path[0] as keyof LoginFormData, {
+          type: "manual",
+          message: detail.message,
+        });
+      });
+      return;
+    }
+
     console.log("Login:", data);
     alert(`Iniciando sesión con: ${data.email}`);
     onClose();
@@ -49,7 +62,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
             <input
               id="login-email"
               type="email"
-              {...loginForm.register("email", { required: "El email es requerido" })}
+              {...loginForm.register("email")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="tu@email.com"
             />
@@ -65,7 +78,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
             <input
               id="login-password"
               type="password"
-              {...loginForm.register("password", { required: "La contraseña es requerida" })}
+              {...loginForm.register("password")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
             />
