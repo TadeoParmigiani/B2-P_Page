@@ -1,5 +1,5 @@
 import axios from "axios";
-import { auth } from "@/firebase/firebase";
+import { auth } from "../firebase/firebase";
 
 const firebaseAxios = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -54,5 +54,47 @@ firebaseAxios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ============ Interfaces ============
+export interface UserDB {
+  id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  role: 'jugador' | 'admin';
+  firebaseUid: string;
+}
+
+// ============ API Functions ============
+
+// Crear usuario en la base de datos
+export const createUserInDB = async (userData: {
+  name: string;
+  lastName: string; 
+  email: string;
+  role: 'jugador'
+  firebaseUid: string;
+}): Promise<UserDB> => {
+  const response = await firebaseAxios.post<UserDB>('/users/register', {
+    name: userData.name,
+    lastName: userData.lastName,  
+    email: userData.email,
+    role: userData.role,
+    firebaseUid: userData.firebaseUid,
+  });
+  return response.data;
+};
+
+// Obtener usuario por Firebase UID
+export const getUserByFirebaseUid = async (firebaseUid: string): Promise<UserDB> => {
+  const response = await firebaseAxios.get<UserDB>(`/users/firebase/${firebaseUid}`);
+  return response.data;
+};
+
+// Obtener el usuario actual
+export const getCurrentUser = async (): Promise<UserDB> => {
+  const response = await firebaseAxios.get<UserDB>('/users/me');
+  return response.data;
+};
 
 export { firebaseAxios };

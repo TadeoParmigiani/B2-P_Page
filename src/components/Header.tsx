@@ -1,11 +1,17 @@
 import { useState } from "react";
 import LoginModal from "./LoginModal";
 import RegisterModal from "./RegisterModal";
+import { useAuth } from "../store/hooks";
+import { useAppDispatch } from "../store/hooks";
+import { logoutUser } from "../feature/authSlice";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  
+  const { user } = useAuth();
+  const dispatch = useAppDispatch();
 
   const openLogin = () => {
     setIsRegisterModalOpen(false);
@@ -20,6 +26,11 @@ export function Header() {
   const closeModals = () => {
     setIsLoginModalOpen(false);
     setIsRegisterModalOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    setIsMenuOpen(false);
   };
 
   return (
@@ -45,18 +56,36 @@ export function Header() {
               </a>
             </nav>
 
-            {/* Login Button */}
+            {/* User Section - Desktop */}
             <div className="hidden md:block">
-              <button
-                type="button"
-                onClick={openLogin}
-                className="inline-flex items-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Iniciar sesión
-              </button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-white font-medium">
+                    {user.name} {user.lastName}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Cerrar sesión
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openLogin}
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Iniciar sesión
+                </button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -101,19 +130,38 @@ export function Header() {
                 >
                   Contacto
                 </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    openLogin();
-                  }}
-                  className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Iniciar sesión
-                </button>
+                
+                {user ? (
+                  <>
+                    <div className="text-white font-medium px-4 py-2 bg-(--gray-800) rounded-lg">
+                      {user.name} {user.lastName}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Cerrar sesión
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      openLogin();
+                    }}
+                    className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-(--green-600) text-white font-medium px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Iniciar sesión
+                  </button>
+                )}
               </nav>
             </div>
           )}

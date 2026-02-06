@@ -1,5 +1,9 @@
 import { useForm } from "react-hook-form";
 import { loginSchema } from "../validations/login";
+import { loginUser, clearError } from "../feature/authSlice";
+import { useAuth } from "../store/hooks";
+import { useAppDispatch } from "../store/hooks";
+import { useEffect } from "react";
 
 interface LoginFormData {
   email: string;
@@ -13,13 +17,24 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
+  const dispatch = useAppDispatch();
+  const { loading, error, user } = useAuth();
   const loginForm = useForm<LoginFormData>();
 
-  const onLogin = (data: LoginFormData) => {
-    const { error } = loginSchema.validate(data, { abortEarly: false });
-    
+  useEffect(() => {
     if (error) {
-      error.details.forEach((detail) => {
+      loginForm.setError("root", {
+        type: "manual",
+        message: error,
+      });
+    }
+  }, [error]);
+
+  const onLogin = async (data: LoginFormData) => {
+    const { error: joiError } = loginSchema.validate(data, { abortEarly: false });
+    
+    if (joiError) {
+      joiError.details.forEach((detail) => {
         loginForm.setError(detail.path[0] as keyof LoginFormData, {
           type: "manual",
           message: detail.message,
@@ -28,10 +43,19 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
       return;
     }
 
-    console.log("Login:", data);
-    alert(`Iniciando sesión con: ${data.email}`);
-    onClose();
+    const result = await dispatch(loginUser(data));
+
+    if (loginUser.fulfilled.match(result)) {
+      alert(`¡Bienvenido ${user?.name || 'de vuelta'}!`);
+      onClose();
+      loginForm.reset();
+    }
+  };
+
+  const handleClose = () => {
+    dispatch(clearError());
     loginForm.reset();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -44,14 +68,22 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
           <h3 className="text-xl font-bold text-(--gray-900)">Iniciar sesión</h3>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 hover:bg-(--gray-100) rounded-lg transition-colors"
+            disabled={loading}
           >
             <svg className="w-5 h-5 text-(--gray-500)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
+
+        {/* Error general */}
+        {loginForm.formState.errors.root && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{loginForm.formState.errors.root.message}</p>
+          </div>
+        )}
 
         {/* Login Form */}
         <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
@@ -65,6 +97,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               {...loginForm.register("email")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="tu@email.com"
+              disabled={loading}
             />
             {loginForm.formState.errors.email && (
               <p className="mt-1 text-sm text-red-500">{loginForm.formState.errors.email.message}</p>
@@ -81,6 +114,7 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               {...loginForm.register("password")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
+              disabled={loading}
             />
             {loginForm.formState.errors.password && (
               <p className="mt-1 text-sm text-red-500">{loginForm.formState.errors.password.message}</p>
@@ -89,9 +123,10 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-(--green-600) text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-(--green-600) text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Iniciar sesión
+            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
           <p className="text-center text-sm text-(--gray-600)">
@@ -100,9 +135,11 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               type="button"
               onClick={() => {
                 loginForm.reset();
+                dispatch(clearError());
                 onSwitchToRegister();
               }}
               className="text-primary hover:underline font-medium"
+              disabled={loading}
             >
               Registrate
             </button>

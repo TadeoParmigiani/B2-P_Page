@@ -1,5 +1,9 @@
 import { useForm } from "react-hook-form";
 import { registerSchema } from "../validations/register";
+import { registerUser, clearError } from "../feature/authSlice";
+import { useAuth } from "../store/hooks";
+import { useAppDispatch } from "../store/hooks";
+import { useEffect } from "react";
 
 interface RegisterFormData {
   nombre: string;
@@ -16,13 +20,25 @@ interface RegisterModalProps {
 }
 
 export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAuth();
   const registerForm = useForm<RegisterFormData>();
 
-  const onRegister = (data: RegisterFormData) => {
-    const { error } = registerSchema.validate(data, { abortEarly: false });
-    
+  useEffect(() => {
     if (error) {
-      error.details.forEach((detail) => {
+      registerForm.setError("root", {
+        type: "manual",
+        message: error,
+      });
+    }
+  }, [error]);
+
+  const onRegister = async (data: RegisterFormData) => {
+    // Validar con Joi
+    const { error: joiError } = registerSchema.validate(data, { abortEarly: false });
+    
+    if (joiError) {
+      joiError.details.forEach((detail) => {
         registerForm.setError(detail.path[0] as keyof RegisterFormData, {
           type: "manual",
           message: detail.message,
@@ -31,10 +47,25 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
       return;
     }
 
-    console.log("Register:", data);
-    alert(`Cuenta creada para: ${data.email}`);
-    onClose();
+    // Registrar usuario
+    const result = await dispatch(registerUser({
+      name: data.nombre,
+      lastName: data.apellido,
+      email: data.email,
+      password: data.password,
+    }));
+
+    if (registerUser.fulfilled.match(result)) {
+      alert(`¡Bienvenido ${data.nombre}! Tu cuenta ha sido creada.`);
+      onClose();
+      registerForm.reset();
+    }
+  };
+
+  const handleClose = () => {
+    dispatch(clearError());
     registerForm.reset();
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -47,14 +78,22 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
           <h3 className="text-xl font-bold text-(--gray-900)">Crear cuenta</h3>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 hover:bg-(--gray-100) rounded-lg transition-colors"
+            disabled={loading}
           >
             <svg className="w-5 h-5 text-(--gray-500)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
+
+        {/* Error general */}
+        {registerForm.formState.errors.root && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{registerForm.formState.errors.root.message}</p>
+          </div>
+        )}
 
         {/* Register Form */}
         <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
@@ -69,6 +108,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
                 {...registerForm.register("nombre")}
                 className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Juan"
+                disabled={loading}
               />
               {registerForm.formState.errors.nombre && (
                 <p className="mt-1 text-sm text-red-500">{registerForm.formState.errors.nombre.message}</p>
@@ -84,6 +124,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
                 {...registerForm.register("apellido")}
                 className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Pérez"
+                disabled={loading}
               />
               {registerForm.formState.errors.apellido && (
                 <p className="mt-1 text-sm text-red-500">{registerForm.formState.errors.apellido.message}</p>
@@ -101,6 +142,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               {...registerForm.register("email")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="tu@email.com"
+              disabled={loading}
             />
             {registerForm.formState.errors.email && (
               <p className="mt-1 text-sm text-red-500">{registerForm.formState.errors.email.message}</p>
@@ -117,6 +159,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               {...registerForm.register("password")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
+              disabled={loading}
             />
             {registerForm.formState.errors.password && (
               <p className="mt-1 text-sm text-red-500">{registerForm.formState.errors.password.message}</p>
@@ -133,6 +176,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               {...registerForm.register("confirmPassword")}
               className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="********"
+              disabled={loading}
             />
             {registerForm.formState.errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-500">{registerForm.formState.errors.confirmPassword.message}</p>
@@ -141,9 +185,10 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-(--green-600) text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-(--green-600) text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Crear cuenta
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
 
           <p className="text-center text-sm text-(--gray-600)">
@@ -152,9 +197,11 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
               type="button"
               onClick={() => {
                 registerForm.reset();
+                dispatch(clearError());
                 onSwitchToLogin();
               }}
               className="text-primary hover:underline font-medium"
+              disabled={loading}
             >
               Iniciá sesión
             </button>
