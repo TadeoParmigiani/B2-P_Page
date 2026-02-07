@@ -18,7 +18,7 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalProps) {
   const dispatch = useAppDispatch();
-  const { loading, error, user } = useAuth();
+  const { loading, error } = useAuth();
   const loginForm = useForm<LoginFormData>();
 
   useEffect(() => {
@@ -46,7 +46,6 @@ export function LoginModal({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
     const result = await dispatch(loginUser(data));
 
     if (loginUser.fulfilled.match(result)) {
-      alert(`¡Bienvenido ${user?.name || 'de vuelta'}!`);
       onClose();
       loginForm.reset();
     }

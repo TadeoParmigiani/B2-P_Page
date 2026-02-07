@@ -1,68 +1,30 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
 import Calendar from "../../components/Calendar";
-import { useAuth } from "../../store/hooks";
+import BookingModal from "../../components/bookingForm";
+import type { BookingFormData } from "../../validations/booking";
+import { useAuth, useBookings, useFields, useAppDispatch, useSchedules } from "../../store/hooks";
+import { fetchBookings, createBooking } from "../../feature/bookingSlice";
+import { fetchFields } from "../../feature/fieldSlice";
+import { fetchSchedules } from "../../feature/schedulesSlices";
 import LoginModal from "../../components/LoginModal";
 import RegisterModal from "../../components/RegisterModal";
 
-interface ReservaFormData {
-  nombre: string;
-  apellido: string;
-}
+const hours = Array.from({ length: 16 }, (_, i) => i + 8);
 
-interface Cancha {
-  id: number;
-  name: string;
-  type: string;
-  description: string;
-}
-
-interface TimeSlot {
-  hour: number;
-  canchaId: number;
-  status: "available" | "booked" | "user-booked";
-  duration?: number;
-}
-
-const canchas: Cancha[] = [
-  { id: 1, name: "Cancha 1 F11", type: "F11", description: "Césped sintético | Con iluminación" },
-  { id: 2, name: "Cancha 3 F7", type: "F7", description: "Césped sintético | Con iluminación" },
-  { id: 3, name: "Cancha 4 F7", type: "F7", description: "Césped sintético | Con iluminación" },
-  { id: 4, name: "Cancha 6 *FUTSAL*", type: "FUTSAL", description: "Cemento | Con iluminación" },
-  { id: 5, name: "Cancha 7 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-  { id: 6, name: "Cancha 8 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-  { id: 7, name: "Cancha 9 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-  { id: 8, name: "Cancha 10 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-  { id: 9, name: "Cancha 12 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-  { id: 10, name: "Cancha 13 F5", type: "F5", description: "Césped sintético | Con iluminación" },
-];
-
-const hours = Array.from({ length: 17 }, (_, i) => i + 8);
-
-const initialBookedSlots: TimeSlot[] = [
-  { hour: 9, canchaId: 1, status: "booked", duration: 2 },
-  { hour: 8, canchaId: 2, status: "booked", duration: 1 },
-  { hour: 8, canchaId: 3, status: "booked", duration: 1 },
-  { hour: 17, canchaId: 2, status: "booked", duration: 2 },
-  { hour: 19, canchaId: 1, status: "booked", duration: 5 },
-  { hour: 19, canchaId: 2, status: "booked", duration: 4 },
-  { hour: 20, canchaId: 3, status: "booked", duration: 3 },
-  { hour: 19, canchaId: 4, status: "booked", duration: 3 },
-  { hour: 19, canchaId: 5, status: "booked", duration: 2 },
-  { hour: 19, canchaId: 6, status: "booked", duration: 2 },
-  { hour: 19, canchaId: 7, status: "booked", duration: 2 },
-  { hour: 19, canchaId: 8, status: "booked", duration: 3 },
-  { hour: 19, canchaId: 9, status: "booked", duration: 4 },
-  { hour: 19, canchaId: 10, status: "booked", duration: 4 },
-  { hour: 24, canchaId: 1, status: "booked", duration: 1 },
-  { hour: 24, canchaId: 2, status: "booked", duration: 1 },
-  { hour: 24, canchaId: 3, status: "booked", duration: 1 },
-];
+// Mapeo de días de la semana en español
+const DAYS_MAP: { [key: number]: string } = {
+  0: "Domingo",
+  1: "Lunes",
+  2: "Martes",
+  3: "Miércoles",
+  4: "Jueves",
+  5: "Viernes",
+  6: "Sábado"
+};
 
 function BookingSection() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [bookedSlots] = useState<TimeSlot[]>(initialBookedSlots);
-  const [selectedSlot, setSelectedSlot] = useState<{ hour: number; canchaId: number } | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{ hour: number; canchaId: string } | null>(null);
   const [sportFilter, setSportFilter] = useState<string>("Fútbol");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showAuthAlert, setShowAuthAlert] = useState(false);
@@ -70,41 +32,86 @@ function BookingSection() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   
   const { user } = useAuth();
-  const reservaForm = useForm<ReservaFormData>();
+  const { bookings, loading: bookingsLoading } = useBookings();
+  const { fields, loading: fieldsLoading } = useFields();
+  const { schedules, loading: schedulesLoading } = useSchedules();
+  const dispatch = useAppDispatch();
 
-  const onSubmitReserva = (data: ReservaFormData) => {
-    if (!selectedSlot) return;
-    const cancha = canchas.find((c) => c.id === selectedSlot.canchaId);
-    alert(`Reserva confirmada!\n\nNombre: ${data.nombre} ${data.apellido}\nCancha: ${cancha?.name}\nFecha: ${selectedDate.toLocaleDateString("es-AR")}\nHora: ${selectedSlot.hour}:00 - ${selectedSlot.hour + 1}:00`);
-    setSelectedSlot(null);
-    reservaForm.reset();
+  useEffect(() => {
+    dispatch(fetchFields());
+    dispatch(fetchBookings());
+    dispatch(fetchSchedules());
+  }, [dispatch]);
+
+  // Verifica el estado de disponibilidad de un slot
+  const getSlotStatus = (hour: number, canchaId: string): "available" | "booked" => {
+    const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+    
+    // Buscar el schedule correspondiente filtrando por campo, día y hora
+    const schedule = schedules.find(s => {
+      const fieldId = typeof s.field === 'string' ? s.field : s.field._id;
+      return fieldId === canchaId && 
+             s.day === dayOfWeek && 
+             s.time === timeStr;
+    });
+    
+    // Si no existe schedule o no está disponible, marcar como no disponible
+    if (!schedule || !schedule.available) {
+      return "booked";
+    }
+
+    // Verificar si existe una reserva para este schedule
+    const booking = bookings.find(b => {
+      const scheduleId = typeof b.schedule === 'string' ? b.schedule : b.schedule._id;
+      return scheduleId === schedule._id;
+    });
+    
+    return booking ? "booked" : "available";
   };
 
-  const handleCloseModal = () => {
-    setSelectedSlot(null);
-    reservaForm.reset();
+  const onSubmitReserva = async (data: BookingFormData) => {
+    if (!selectedSlot || !user) return;
+    
+    try {
+      const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
+      const timeStr = `${selectedSlot.hour.toString().padStart(2, '0')}:00`;
+      
+      // Buscar el schedule que coincida con campo, día y hora seleccionados
+      const schedule = schedules.find(s => {
+        const fieldId = typeof s.field === 'string' ? s.field : s.field._id;
+        return fieldId === selectedSlot.canchaId && 
+               s.day === dayOfWeek && 
+               s.time === timeStr;
+      });
+
+      if (!schedule) {
+        alert('No se encontró un horario disponible para esta selección');
+        return;
+      }
+
+      // Crear la reserva con el schedule._id (ObjectId de MongoDB)
+      await dispatch(createBooking({
+        field: selectedSlot.canchaId,
+        schedule: schedule._id,
+        playerName: `${data.nombre} ${data.apellido}`,
+        tel: data.tel,
+      })).unwrap();
+
+      alert(`¡Reserva confirmada!\n\nNombre: ${data.nombre} ${data.apellido}\nFecha: ${selectedDate.toLocaleDateString("es-AR")}\nHora: ${selectedSlot.hour}:00`);
+      
+      setSelectedSlot(null);
+      // Actualizar datos después de crear la reserva
+      dispatch(fetchBookings());
+      dispatch(fetchSchedules());
+    } catch (error) {
+      alert('Error al crear la reserva. Por favor intenta nuevamente.');
+    }
   };
 
-  const getSlotStatus = (hour: number, canchaId: number) => {
-    const slot = bookedSlots.find(
-      (s) => s.canchaId === canchaId && hour >= s.hour && hour < s.hour + (s.duration || 1)
-    );
-    return slot?.status || "available";
-  };
-
-  const getSlotDuration = (hour: number, canchaId: number) => {
-    const slot = bookedSlots.find((s) => s.canchaId === canchaId && s.hour === hour);
-    return slot?.duration || 0;
-  };
-
-  const isSlotStart = (hour: number, canchaId: number) => {
-    return bookedSlots.some((s) => s.canchaId === canchaId && s.hour === hour);
-  };
-
-  const handleSlotClick = (hour: number, canchaId: number) => {
+  const handleSlotClick = (hour: number, canchaId: string) => {
     const status = getSlotStatus(hour, canchaId);
     if (status === "available") {
-      // Verificar si el usuario está autenticado
       if (!user) {
         setShowAuthAlert(true);
         return;
@@ -122,6 +129,14 @@ function BookingSection() {
     setShowLoginModal(false);
     setShowRegisterModal(true);
   };
+
+  if (fieldsLoading || bookingsLoading || schedulesLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-lg">Cargando...</div>
+      </div>
+    );
+  }
 
   return (
     <section id="reservar" className="py-12 px-4 bg-white">
@@ -190,40 +205,29 @@ function BookingSection() {
                 </tr>
               </thead>
               <tbody>
-                {canchas.map((cancha) => (
-                  <tr key={cancha.id} className="border-b border-(--gray-100) last:border-b-0">
+                {fields.filter(f => f.isActive).map((cancha) => (
+                  <tr key={cancha._id} className="border-b border-(--gray-100) last:border-b-0">
                     <td className="p-4">
                       <div className="font-semibold text-(--gray-900)">{cancha.name}</div>
+                       <div className="text-xs text-(--gray-600) font-medium mt-0.5">{cancha.type}</div>
                       <div className="text-sm text-(--gray-500)">{cancha.description}</div>
                     </td>
                     {hours.map((hour) => {
-                      const status = getSlotStatus(hour, cancha.id);
-                      const duration = getSlotDuration(hour, cancha.id);
-                      const isStart = isSlotStart(hour, cancha.id);
-                      const isSelected = selectedSlot?.hour === hour && selectedSlot?.canchaId === cancha.id;
-
-                      if (status !== "available" && !isStart) {
-                        return null;
-                      }
+                      const status = getSlotStatus(hour, cancha._id);
+                      const isSelected = selectedSlot?.hour === hour && selectedSlot?.canchaId === cancha._id;
 
                       return (
-                        <td
-                          key={hour}
-                          colSpan={status !== "available" && isStart ? duration : 1}
-                          className="p-1"
-                        >
+                        <td key={hour} className="p-1">
                           <button
                             type="button"
-                            onClick={() => handleSlotClick(hour, cancha.id)}
+                            onClick={() => handleSlotClick(hour, cancha._id)}
                             disabled={status !== "available"}
                             className={`w-full h-8 rounded transition-all ${
                               status === "available"
                                 ? isSelected
                                   ? "bg-primary ring-2 ring-primary ring-offset-2"
                                   : "hover:bg-(--gray-200) cursor-pointer"
-                                : status === "booked"
-                                ? "bg-(--gray-400) cursor-not-allowed"
-                                : "bg-primary cursor-not-allowed"
+                                : "bg-(--gray-400) cursor-not-allowed"
                             }`}
                             aria-label={`${cancha.name} a las ${hour}:00 - ${status === "available" ? "Disponible" : "No disponible"}`}
                           />
@@ -314,98 +318,16 @@ function BookingSection() {
           onSwitchToLogin={handleSwitchToLogin}
         />
 
-        {/* Selected Slot Modal - Formulario de Reserva */}
+        {/* Booking Modal */}
         {selectedSlot && user && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              {/* Header del modal */}
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-(--gray-900)">Confirmar Reserva</h3>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="p-2 hover:bg-(--gray-100) rounded-lg transition-colors"
-                >
-                  <svg className="w-5 h-5 text-(--gray-500)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Datos de la reserva (pre-seteados) */}
-              <div className="bg-(--gray-100) rounded-lg p-4 mb-6 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-(--gray-500)">Cancha:</span>
-                  <span className="font-medium text-(--gray-900)">
-                    {canchas.find((c) => c.id === selectedSlot.canchaId)?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--gray-500)">Fecha:</span>
-                  <span className="font-medium text-(--gray-900)">
-                    {selectedDate.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-(--gray-500)">Hora:</span>
-                  <span className="font-medium text-(--gray-900)">
-                    {selectedSlot.hour}:00 - {selectedSlot.hour + 1}:00
-                  </span>
-                </div>
-              </div>
-
-              {/* Formulario para nombre y apellido */}
-              <form onSubmit={reservaForm.handleSubmit(onSubmitReserva)} className="space-y-4">
-                <div>
-                  <label htmlFor="reserva-nombre" className="block text-sm font-medium text-(--gray-700) mb-1">
-                    Nombre
-                  </label>
-                  <input
-                    id="reserva-nombre"
-                    type="text"
-                    {...reservaForm.register("nombre", { required: "El nombre es requerido" })}
-                    className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Tu nombre"
-                  />
-                  {reservaForm.formState.errors.nombre && (
-                    <p className="mt-1 text-sm text-red-500">{reservaForm.formState.errors.nombre.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="reserva-apellido" className="block text-sm font-medium text-(--gray-700) mb-1">
-                    Apellido
-                  </label>
-                  <input
-                    id="reserva-apellido"
-                    type="text"
-                    {...reservaForm.register("apellido", { required: "El apellido es requerido" })}
-                    className="w-full px-4 py-2 border border-(--gray-300) rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Tu apellido"
-                  />
-                  {reservaForm.formState.errors.apellido && (
-                    <p className="mt-1 text-sm text-red-500">{reservaForm.formState.errors.apellido.message}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="flex-1 px-4 py-2 border border-(--gray-300) rounded-lg hover:bg-(--gray-100) transition-colors font-medium"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-(--green-600) transition-colors font-medium"
-                  >
-                    Confirmar Reserva
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <BookingModal
+            isOpen={!!selectedSlot}
+            selectedSlot={selectedSlot}
+            selectedDate={selectedDate}
+            fields={fields}
+            onClose={() => setSelectedSlot(null)}
+            onSubmit={onSubmitReserva}
+          />
         )}
       </div>
     </section>

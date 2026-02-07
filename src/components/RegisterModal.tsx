@@ -56,7 +56,6 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
     }));
 
     if (registerUser.fulfilled.match(result)) {
-      alert(`¡Bienvenido ${data.nombre}! Tu cuenta ha sido creada.`);
       onClose();
       registerForm.reset();
     }

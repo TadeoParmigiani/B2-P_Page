@@ -1,16 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../feature/authSlice";
+import bookingReducer from "../feature/bookingSlice";
+import fieldReducer from "../feature/fieldSlice"
+import scheduleReducer from "../feature/schedulesSlices";
 
-
-// Configuración del store de Redux
 export const store = configureStore({
   reducer: {
-    // Autenticación y usuario
     auth: authReducer,
-    
-    // Datos principales
-
-   },
+    bookings: bookingReducer,
+    fields: fieldReducer,
+    schedules: scheduleReducer,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
