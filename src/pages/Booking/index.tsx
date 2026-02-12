@@ -61,10 +61,23 @@ function BookingSection() {
       return "booked";
     }
 
-    // Verificar si existe una reserva para este schedule
+    // Verificar si existe una reserva para este schedule EN LA FECHA SELECCIONADA
+    const selectedDateStr = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    
     const booking = bookings.find(b => {
       const scheduleId = typeof b.schedule === 'string' ? b.schedule : b.schedule._id;
-      return scheduleId === schedule._id;
+      
+      // Validar que bookingDate exista y sea válida
+      if (!b.bookingDate) return false;
+      
+      const bookingDate = new Date(b.bookingDate);
+      
+      // Verificar que la fecha sea válida
+      if (isNaN(bookingDate.getTime())) return false;
+      
+      const bookingDateStr = bookingDate.toISOString().split('T')[0];
+      
+      return scheduleId === schedule._id && bookingDateStr === selectedDateStr;
     });
     
     return booking ? "booked" : "available";
@@ -94,6 +107,7 @@ function BookingSection() {
       await dispatch(createBooking({
         field: selectedSlot.canchaId,
         schedule: schedule._id,
+        bookingDate: selectedDate.toISOString(),
         playerName: `${data.nombre} ${data.apellido}`,
         tel: data.tel,
       })).unwrap();

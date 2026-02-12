@@ -5,6 +5,7 @@ export interface Booking {
   _id: string;
   field: string | { _id: string; name: string; type: string };
   schedule: string | { _id: string; day: string; time: string };
+  bookingDate: string; 
   playerName: string;
   tel: string;
   isActive: boolean;
@@ -39,7 +40,13 @@ export const fetchBookings = createAsyncThunk(
 
 export const createBooking = createAsyncThunk(
   'bookings/createBooking',
-  async (bookingData: { field: string; schedule: string; playerName: string; tel: string }) => {
+  async (bookingData: { 
+    field: string; 
+    schedule: string; 
+    bookingDate: string;
+    playerName: string; 
+    tel: string 
+  }) => {
     const res = await firebaseAxios.post<{ data: Booking }>('/bookings', bookingData);
     return res.data.data;
   }

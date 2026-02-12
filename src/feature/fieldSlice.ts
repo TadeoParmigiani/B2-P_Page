@@ -6,6 +6,7 @@ export interface Field {
   name: string;
   type: string;
   description: string;
+  pricePerHour: number;
   isActive: boolean;
 }
 

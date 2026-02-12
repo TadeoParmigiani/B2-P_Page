@@ -79,6 +79,12 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
               {selectedSlot.hour}:00 - {selectedSlot.hour + 1}:00
             </span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-(--gray-500)">Precio:</span>
+            <span className="font-medium text-(--gray-900)">
+              ${fields.find((c) => c._id === selectedSlot.canchaId)?.pricePerHour}
+            </span>
+          </div>
         </div>
 
         {/* Formulario para nombre, apellido y teléfono */}
