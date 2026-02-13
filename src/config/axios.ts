@@ -72,16 +72,20 @@ export const createUserInDB = async (userData: {
   name: string;
   lastName: string; 
   email: string;
+  password: string;
   role: 'jugador'
-  firebaseUid: string;
 }): Promise<UserDB> => {
-  const response = await firebaseAxios.post<UserDB>('/users/register', {
+  const payload = {
     name: userData.name,
     lastName: userData.lastName,  
     email: userData.email,
+    password: userData.password,
     role: userData.role,
-    firebaseUid: userData.firebaseUid,
-  });
+  };
+  
+  console.log('Payload enviado al backend:', payload);
+  
+  const response = await firebaseAxios.post<UserDB>('/users/register', payload);
   return response.data;
 };
 

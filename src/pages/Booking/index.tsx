@@ -111,8 +111,6 @@ function BookingSection() {
         playerName: `${data.nombre} ${data.apellido}`,
         tel: data.tel,
       })).unwrap();
-
-      alert(`¡Reserva confirmada!\n\nNombre: ${data.nombre} ${data.apellido}\nFecha: ${selectedDate.toLocaleDateString("es-AR")}\nHora: ${selectedSlot.hour}:00`);
       
       setSelectedSlot(null);
       // Actualizar datos después de crear la reserva
@@ -262,7 +260,7 @@ function BookingSection() {
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <span className="text-sm text-blue-800">
-              Las reservas se pueden realizar hasta con <strong>seis días de antelación</strong>
+              Para cancelar o modificar tu reserva, deberás hacerlo<strong> llamando al numero que se encuentra en la sección de contacto</strong>
             </span>
           </div>
 

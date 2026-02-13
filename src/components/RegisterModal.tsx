@@ -34,10 +34,13 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
   }, [error]);
 
   const onRegister = async (data: RegisterFormData) => {
+    console.log("📝 Datos del formulario:", data); // DEBUG
+    
     // Validar con Joi
     const { error: joiError } = registerSchema.validate(data, { abortEarly: false });
     
     if (joiError) {
+      console.log("❌ Errores de validación:", joiError.details); // DEBUG
       joiError.details.forEach((detail) => {
         registerForm.setError(detail.path[0] as keyof RegisterFormData, {
           type: "manual",
@@ -47,13 +50,18 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
       return;
     }
 
-    // Registrar usuario
-    const result = await dispatch(registerUser({
+    const payload = {
       name: data.nombre,
       lastName: data.apellido,
       email: data.email,
       password: data.password,
-    }));
+    };
+    
+    console.log("🚀 Payload a enviar:", payload); // DEBUG
+    console.log("🔑 Password existe?", data.password !== undefined); // DEBUG
+
+    // Registrar usuario
+    const result = await dispatch(registerUser(payload));
 
     if (registerUser.fulfilled.match(result)) {
       onClose();

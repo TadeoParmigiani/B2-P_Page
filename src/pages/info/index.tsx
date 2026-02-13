@@ -91,9 +91,14 @@ function InfoPageSection() {
       id: "ubicacion",
       title: "Ubicación",
       content: (
-        <p className="text-(--gray-600)">
-          Blvd. 27 de Febrero 2672, Rosario, Argentina
-        </p>
+        <div>
+          <p className="text-(--gray-600)">
+            Blvd. 27 de Febrero 2672, Rosario, Argentina
+          </p>
+          <p className="text-(--gray-600)">
+            Telefono: (0341) 123-4567
+          </p>
+        </div>
       ),
     },
     {

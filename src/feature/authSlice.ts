@@ -7,14 +7,12 @@ import {
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  createUserWithEmailAndPassword,
   type User,
 } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import type { RootState } from "../store/store";
 import { createUserInDB, getUserByFirebaseUid } from "../config/axios";
 
-// Define the shape of our user data
 export interface AuthUser {
   uid: string;
   email: string | null;
@@ -37,29 +35,41 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Register new user
+const setToken = (token: string) => localStorage.setItem("token", token);
+const removeToken = () => localStorage.removeItem("token");
+
+const retryGetUser = async (firebaseUid: string, maxAttempts = 3, delay = 500) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await getUserByFirebaseUid(firebaseUid);
+    } catch (error: any) {
+      if (attempt === maxAttempts - 1 || error.response?.status !== 404) {
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+};
+
 export const registerUser = createAsyncThunk<
   AuthUser,
   { name: string; lastName: string; email: string; password: string },
   { rejectValue: string }
 >("auth/registerUser", async ({ name, lastName, email, password }, { rejectWithValue }) => {
   try {
-    // 1. Crear usuario en Firebase
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const dbUser = await createUserInDB({
+      name,
+      lastName,
+      email,
+      password,
+      role: 'jugador',
+    });
+
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const firebaseUser = userCredential.user;
     const token = await firebaseUser.getIdToken();
 
-    // 2. Guardar token en localStorage
-    localStorage.setItem("token", token);
-
-    // 3. Crear usuario en la base de datos
-    const dbUser = await createUserInDB({
-      name,
-      lastName: lastName,
-      email,
-      role: 'jugador',
-      firebaseUid: firebaseUser.uid,
-    });
+    setToken(token);
 
     return {
       uid: firebaseUser.uid,
@@ -71,99 +81,66 @@ export const registerUser = createAsyncThunk<
       dbId: dbUser.id,
     };
   } catch (error: any) {
-    // Si falla, intentar limpiar
-    try {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        await currentUser.delete();
-      }
-    } catch (deleteError) {
-      console.error("Error deleting user:", deleteError);
-    }
-    localStorage.removeItem("token");
+    removeToken();
     return rejectWithValue(error.response?.data?.message || error.message || "Error al registrar usuario");
   }
 });
 
-// Login existing user
 export const loginUser = createAsyncThunk<
   AuthUser,
   { email: string; password: string },
   { rejectValue: string }
->(
-  "auth/loginUser",
-  async ({ email, password }, { rejectWithValue }) => {
-    try {
-      // 1. Autenticar con Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      const token = await firebaseUser.getIdToken();
+>("auth/loginUser", async ({ email, password }, { rejectWithValue }) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const firebaseUser = userCredential.user;
+    const token = await firebaseUser.getIdToken();
 
-      // 2. Guardar token
-      localStorage.setItem("token", token);
+    setToken(token);
 
-      // 3. Obtener datos del usuario desde la DB
-      const dbUser = await getUserByFirebaseUid(firebaseUser.uid);
+    const dbUser = await getUserByFirebaseUid(firebaseUser.uid);
 
-      return {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        token,
-        name: dbUser.name,
-        lastName: dbUser.lastName,
-        role: dbUser.role,
-        dbId: dbUser.id,
-      };
-    } catch (error: any) {
-      localStorage.removeItem("token");
-      return rejectWithValue(error.response?.data?.message || error.message || "Error al iniciar sesión");
-    }
+    return {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      token,
+      name: dbUser.name,
+      lastName: dbUser.lastName,
+      role: dbUser.role,
+      dbId: dbUser.id,
+    };
+  } catch (error: any) {
+    removeToken();
+    return rejectWithValue(error.response?.data?.message || error.message || "Error al iniciar sesión");
   }
-);
+});
 
-// Observe Firebase user state
 export const observeUser = createAsyncThunk<void, void, { dispatch: Dispatch }>(
   "auth/observeUser",
   async (_, { dispatch }) => {
     onAuthStateChanged(auth, async (firebaseUser: User | null) => {
       dispatch(setLoading(true));
+
       if (firebaseUser) {
         try {
           const token = await firebaseUser.getIdToken();
-          localStorage.setItem("token", token);
-          
-          // Reintentar hasta 3 veces con delay para usuarios recién creados
-          let dbUser = null;
-          let attempts = 0;
-          const maxAttempts = 3;
-          
-          while (attempts < maxAttempts && !dbUser) {
-            try {
-              dbUser = await getUserByFirebaseUid(firebaseUser.uid);
-            } catch (error: any) {
-              attempts++;
-              if (attempts < maxAttempts && error.response?.status === 404) {
-                // Esperar 500ms antes de reintentar
-                await new Promise(resolve => setTimeout(resolve, 500));
-              } else {
-                throw error;
-              }
-            }
-          }
-          
-          if (dbUser) {
-            dispatch(setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              token,
-              name: dbUser.name,
-              lastName: dbUser.lastName,
-              role: dbUser.role,
-              dbId: dbUser.id,
-            }));
-          } else {
+          setToken(token);
+
+          const dbUser = await retryGetUser(firebaseUser.uid);
+
+          if (!dbUser) {
             throw new Error("No se pudo cargar los datos del usuario");
           }
+
+          dispatch(setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            token,
+            name: dbUser.name,
+            lastName: dbUser.lastName,
+            role: dbUser.role,
+            dbId: dbUser.id,
+          }));
         } catch (error) {
           console.error("Error loading user data:", error);
           dispatch(clearUser());
@@ -171,18 +148,18 @@ export const observeUser = createAsyncThunk<void, void, { dispatch: Dispatch }>(
       } else {
         dispatch(clearUser());
       }
+
       dispatch(setLoading(false));
     });
   }
 );
 
-// Logout user
 export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
       await auth.signOut();
-      localStorage.removeItem("token");
+      removeToken();
     } catch (error: any) {
       return rejectWithValue(error.message || "Error al cerrar sesión");
     }
@@ -199,7 +176,7 @@ const authSlice = createSlice({
     },
     clearUser: (state) => {
       state.user = null;
-      localStorage.removeItem("token");
+      removeToken();
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -210,7 +187,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -224,8 +200,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Registration failed";
       })
-
-      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -239,8 +213,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Login failed";
       })
-
-      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.loading = false;

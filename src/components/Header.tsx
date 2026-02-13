@@ -44,7 +44,7 @@ export function Header() {
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-10">
+            <nav className="hidden md:flex items-center gap-15 ml-35">
               <a href="#reservar" className="text-white hover:text-primary transition-colors">
                 Reservar
               </a>
