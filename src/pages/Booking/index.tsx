@@ -11,7 +11,6 @@ import RegisterModal from "../../components/RegisterModal";
 
 const hours = Array.from({ length: 16 }, (_, i) => i + 8);
 
-// Mapeo de días de la semana en español
 const DAYS_MAP: { [key: number]: string } = {
   0: "Domingo",
   1: "Lunes",
@@ -43,12 +42,10 @@ function BookingSection() {
     dispatch(fetchSchedules());
   }, [dispatch]);
 
-  // Verifica el estado de disponibilidad de un slot
   const getSlotStatus = (hour: number, canchaId: string): "available" | "booked" => {
     const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
     const timeStr = `${hour.toString().padStart(2, '0')}:00`;
     
-    // Buscar el schedule correspondiente filtrando por campo, día y hora
     const schedule = schedules.find(s => {
       const fieldId = typeof s.field === 'string' ? s.field : s.field._id;
       return fieldId === canchaId && 
@@ -56,23 +53,20 @@ function BookingSection() {
              s.time === timeStr;
     });
     
-    // Si no existe schedule o no está disponible, marcar como no disponible
     if (!schedule || !schedule.available) {
       return "booked";
     }
 
-    // Verificar si existe una reserva para este schedule EN LA FECHA SELECCIONADA
-    const selectedDateStr = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    // Verificar si existe una reserva para este schedule en la fecha seleccionada
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
     
     const booking = bookings.find(b => {
       const scheduleId = typeof b.schedule === 'string' ? b.schedule : b.schedule._id;
       
-      // Validar que bookingDate exista y sea válida
       if (!b.bookingDate) return false;
       
       const bookingDate = new Date(b.bookingDate);
       
-      // Verificar que la fecha sea válida
       if (isNaN(bookingDate.getTime())) return false;
       
       const bookingDateStr = bookingDate.toISOString().split('T')[0];
@@ -90,7 +84,6 @@ function BookingSection() {
       const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
       const timeStr = `${selectedSlot.hour.toString().padStart(2, '0')}:00`;
       
-      // Buscar el schedule que coincida con campo, día y hora seleccionados
       const schedule = schedules.find(s => {
         const fieldId = typeof s.field === 'string' ? s.field : s.field._id;
         return fieldId === selectedSlot.canchaId && 
@@ -103,7 +96,6 @@ function BookingSection() {
         return;
       }
 
-      // Crear la reserva con el schedule._id (ObjectId de MongoDB)
       await dispatch(createBooking({
         field: selectedSlot.canchaId,
         schedule: schedule._id,
@@ -113,7 +105,6 @@ function BookingSection() {
       })).unwrap();
       
       setSelectedSlot(null);
-      // Actualizar datos después de crear la reserva
       dispatch(fetchBookings());
       dispatch(fetchSchedules());
     } catch (error) {
@@ -157,10 +148,8 @@ function BookingSection() {
           Elige tu turno
         </h2>
 
-        {/* Controls */}
         <div className="bg-white border border-(--gray-200) rounded-lg p-4 mb-6">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Sport Filter Dropdown */}
             <div className="relative">
               <button
                 type="button"
@@ -197,12 +186,10 @@ function BookingSection() {
               )}
             </div>
 
-            {/* Calendar Component */}
             <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
           </div>
         </div>
 
-        {/* Booking Grid */}
         <div className="bg-white border border-(--gray-200) rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-225">
@@ -221,7 +208,7 @@ function BookingSection() {
                   <tr key={cancha._id} className="border-b border-(--gray-100) last:border-b-0">
                     <td className="p-4">
                       <div className="font-semibold text-(--gray-900)">{cancha.name}</div>
-                       <div className="text-xs text-(--gray-600) font-medium mt-0.5">{cancha.type}</div>
+                      <div className="text-xs text-(--gray-600) font-medium mt-0.5">{cancha.type}</div>
                       <div className="text-sm text-(--gray-500)">{cancha.description}</div>
                     </td>
                     {hours.map((hour) => {
@@ -253,7 +240,6 @@ function BookingSection() {
           </div>
         </div>
 
-        {/* Info Banner */}
         <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
             <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -276,7 +262,6 @@ function BookingSection() {
           </div>
         </div>
 
-        {/* Auth Alert Modal */}
         {showAuthAlert && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl p-6 max-w-md w-full">
@@ -316,21 +301,18 @@ function BookingSection() {
           </div>
         )}
 
-        {/* Login Modal */}
         <LoginModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
           onSwitchToRegister={handleSwitchToRegister}
         />
 
-        {/* Register Modal */}
         <RegisterModal
           isOpen={showRegisterModal}
           onClose={() => setShowRegisterModal(false)}
           onSwitchToLogin={handleSwitchToLogin}
         />
 
-        {/* Booking Modal */}
         {selectedSlot && user && (
           <BookingModal
             isOpen={!!selectedSlot}

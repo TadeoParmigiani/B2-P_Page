@@ -55,7 +55,6 @@ firebaseAxios.interceptors.response.use(
   }
 );
 
-// ============ Interfaces ============
 export interface UserDB {
   id: string;
   name: string;
@@ -64,8 +63,6 @@ export interface UserDB {
   role: 'jugador' | 'admin';
   firebaseUid: string;
 }
-
-// ============ API Functions ============
 
 // Crear usuario en la base de datos
 export const createUserInDB = async (userData: {
@@ -82,9 +79,7 @@ export const createUserInDB = async (userData: {
     password: userData.password,
     role: userData.role,
   };
-  
-  console.log('Payload enviado al backend:', payload);
-  
+    
   const response = await firebaseAxios.post<UserDB>('/users/register', payload);
   return response.data;
 };
@@ -95,10 +90,5 @@ export const getUserByFirebaseUid = async (firebaseUid: string): Promise<UserDB>
   return response.data;
 };
 
-// Obtener el usuario actual
-export const getCurrentUser = async (): Promise<UserDB> => {
-  const response = await firebaseAxios.get<UserDB>('/users/me');
-  return response.data;
-};
 
 export { firebaseAxios };

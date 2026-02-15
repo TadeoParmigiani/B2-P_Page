@@ -34,13 +34,9 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
   }, [error]);
 
   const onRegister = async (data: RegisterFormData) => {
-    console.log("📝 Datos del formulario:", data); // DEBUG
-    
-    // Validar con Joi
     const { error: joiError } = registerSchema.validate(data, { abortEarly: false });
     
     if (joiError) {
-      console.log("❌ Errores de validación:", joiError.details); // DEBUG
       joiError.details.forEach((detail) => {
         registerForm.setError(detail.path[0] as keyof RegisterFormData, {
           type: "manual",
@@ -56,11 +52,7 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
       email: data.email,
       password: data.password,
     };
-    
-    console.log("🚀 Payload a enviar:", payload); // DEBUG
-    console.log("🔑 Password existe?", data.password !== undefined); // DEBUG
 
-    // Registrar usuario
     const result = await dispatch(registerUser(payload));
 
     if (registerUser.fulfilled.match(result)) {
@@ -80,7 +72,6 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
       <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-(--gray-900)">Crear cuenta</h3>
           <button
@@ -95,14 +86,12 @@ export function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModa
           </button>
         </div>
 
-        {/* Error general */}
         {registerForm.formState.errors.root && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600">{registerForm.formState.errors.root.message}</p>
           </div>
         )}
 
-        {/* Register Form */}
         <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>

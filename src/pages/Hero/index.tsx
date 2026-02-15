@@ -1,7 +1,6 @@
 function HeroSection() {
   return (
     <section className="relative min-h-100 md:min-h-125 flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -9,7 +8,6 @@ function HeroSection() {
         }}
       />
       
-      {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
           Club atletico provincial

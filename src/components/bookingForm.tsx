@@ -20,11 +20,11 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
   };
 
   const handleFormSubmit = (data: BookingFormData) => {
-    // Validar con Joi manualmente
+    
     const { error } = bookingValidationSchema.validate(data, { abortEarly: false });
 
     if (error) {
-      // Mapear los errores de Joi a react-hook-form
+    
       error.details.forEach((detail) => {
         const field = detail.path[0] as keyof BookingFormData;
         setError(field, {
@@ -35,7 +35,6 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
       return;
     }
 
-    // Si no hay errores, enviar el formulario
     onSubmit(data);
     reset();
   };
@@ -59,7 +58,6 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
           </button>
         </div>
 
-        {/* Datos de la reserva (pre-seteados) */}
         <div className="bg-(--gray-100) rounded-lg p-4 mb-6 space-y-2">
           <div className="flex justify-between">
             <span className="text-(--gray-500)">Cancha:</span>
@@ -87,7 +85,6 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
           </div>
         </div>
 
-        {/* Formulario para nombre, apellido y teléfono */}
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div>
             <label htmlFor="reserva-nombre" className="block text-sm font-medium text-(--gray-700) mb-1">
