@@ -1,19 +1,19 @@
 export function Footer() {
   return (
-    <footer className="bg-[var(--gray-900)] text-white py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <footer className="bg-gray-900 text-white py-8 px-4">
+      <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           {/* Logo and Info */}
           <div>
-            <h3 className="text-2xl font-bold text-[var(--primary)] mb-2">b2-p</h3>
-            <p className="text-[var(--gray-400)]">Tu plataforma para reservar canchas de fútbol</p>
+            <h3 className="text-2xl font-bold text-primary mb-2">b2-p</h3>
+            <p className="text-gray-400">Tu plataforma para reservar canchas de fútbol</p>
           </div>
 
           {/* Social Links */}
           <div className="flex items-center gap-4">
             <a
               href="#"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--gray-800)] hover:bg-[var(--primary)] transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
               aria-label="Facebook"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@ export function Footer() {
             </a>
             <a
               href="#"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--gray-800)] hover:bg-[var(--primary)] transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
               aria-label="Twitter"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@ export function Footer() {
             </a>
             <a
               href="#"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--gray-800)] hover:bg-[var(--primary)] transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
               aria-label="Instagram"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-[var(--gray-800)] text-center text-[var(--gray-400)] text-sm">
+        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
           <p>&copy; {new Date().getFullYear()} b2-p. Todos los derechos reservados.</p>
         </div>
       </div>
