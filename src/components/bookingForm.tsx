@@ -138,13 +138,13 @@ function BookingModal({ isOpen, selectedSlot, selectedDate, fields, onClose, onS
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-(--gray-300) rounded-lg hover:bg-(--gray-100) transition-colors font-medium"
+              className="flex-1 px-4 py-2 border border-(--gray-300) rounded-lg hover:bg-(--gray-100) transition-colors font-medium cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-(--green-600) transition-colors font-medium"
+              className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-(--green-600) transition-colors font-medium cursor-pointer"
             >
               Confirmar Reserva
             </button>
