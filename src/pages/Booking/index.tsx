@@ -43,6 +43,12 @@ function BookingSection() {
   }, [dispatch]);
 
   const getSlotStatus = (hour: number, canchaId: string): "available" | "booked" | "mine" => {
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    if (isToday && hour <= now.getHours() + 1) {
+      return "booked";
+    }
+
     const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
     const timeStr = `${hour.toString().padStart(2, '0')}:00`;
 
