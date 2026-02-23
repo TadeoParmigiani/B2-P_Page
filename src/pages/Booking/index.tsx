@@ -42,39 +42,47 @@ function BookingSection() {
     dispatch(fetchSchedules());
   }, [dispatch]);
 
-  const getSlotStatus = (hour: number, canchaId: string): "available" | "booked" => {
+  const getSlotStatus = (hour: number, canchaId: string): "available" | "booked" | "mine" => {
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    if (isToday && hour <= now.getHours() + 1) {
+      return "booked";
+    }
+
     const dayOfWeek = DAYS_MAP[selectedDate.getDay()];
     const timeStr = `${hour.toString().padStart(2, '0')}:00`;
-    
+
     const schedule = schedules.find(s => {
       const fieldId = typeof s.field === 'string' ? s.field : s.field._id;
       return fieldId === canchaId && 
              s.day === dayOfWeek && 
              s.time === timeStr;
     });
-    
+
     if (!schedule || !schedule.available) {
       return "booked";
     }
 
-    // Verificar si existe una reserva para este schedule en la fecha seleccionada
     const selectedDateStr = selectedDate.toISOString().split('T')[0];
-    
+
     const booking = bookings.find(b => {
       const scheduleId = typeof b.schedule === 'string' ? b.schedule : b.schedule._id;
-      
       if (!b.bookingDate) return false;
-      
       const bookingDate = new Date(b.bookingDate);
-      
       if (isNaN(bookingDate.getTime())) return false;
-      
       const bookingDateStr = bookingDate.toISOString().split('T')[0];
-      
       return scheduleId === schedule._id && bookingDateStr === selectedDateStr;
     });
-    
-    return booking ? "booked" : "available";
+
+    // Si hay booking y es del usuario actual
+    if (booking) {
+      if (user && booking.playerId === user.dbId) {
+        return "mine";
+      }
+      return "booked";
+    }
+
+    return "available";
   };
 
   const onSubmitReserva = async (data: BookingFormData) => {
@@ -102,6 +110,7 @@ function BookingSection() {
         bookingDate: selectedDate.toISOString(),
         playerName: `${data.nombre} ${data.apellido}`,
         tel: data.tel,
+        playerId: user.dbId, 
       })).unwrap();
       
       setSelectedSlot(null);
@@ -226,9 +235,17 @@ function BookingSection() {
                                 ? isSelected
                                   ? "bg-primary ring-2 ring-primary ring-offset-2"
                                   : "hover:bg-(--gray-200) cursor-pointer"
-                                : "bg-(--gray-400) cursor-not-allowed"
+                                : status === "mine"
+                                  ? "bg-primary cursor-not-allowed"
+                                  : "bg-(--gray-400) cursor-not-allowed"
                             }`}
-                            aria-label={`${cancha.name} a las ${hour}:00 - ${status === "available" ? "Disponible" : "No disponible"}`}
+                            aria-label={`${cancha.name} a las ${hour}:00 - ${
+                              status === "available"
+                                ? "Disponible"
+                                : status === "mine"
+                                  ? "Tu reserva"
+                                  : "No disponible"
+                            }`}
                           />
                         </td>
                       );
