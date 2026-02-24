@@ -27,7 +27,7 @@ export const useBookings = () => {
 
   return {
     bookings,
-    loading: status === 'loading' || status === 'idle',
+    loading: status === 'loading',
     error: null,
   };
 };
@@ -38,7 +38,7 @@ export const useFields = () => {
 
   return {
     fields,
-    loading: status === 'loading' || status === 'idle',
+    loading: status === 'loading' 
   };
 };
 
@@ -48,6 +48,6 @@ export const useSchedules = () => {
 
   return {
     schedules,
-    loading: status === 'loading' || status === 'idle',
+    loading: status === 'loading' 
   };
 };
