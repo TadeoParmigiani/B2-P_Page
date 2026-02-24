@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import type { AppDispatch, RootState } from './store'
 import { getAuthState } from '../feature/authSlice'
-import { selectBookings, selectBookingsStatus, selectBookingsError } from '../feature/bookingSlice'
+import { selectBookings, selectBookingsStatus} from '../feature/bookingSlice'
 import { selectFields, selectFieldsStatus } from '../feature/fieldSlice'
 import { selectSchedules, selectSchedulesStatus } from '../feature/schedulesSlices'
 
@@ -24,12 +24,11 @@ export const useAuth = () => {
 export const useBookings = () => {
   const bookings = useAppSelector(selectBookings);
   const status = useAppSelector(selectBookingsStatus);
-  const error = useAppSelector(selectBookingsError);
 
   return {
     bookings,
-    loading: status === 'loading',
-    error,
+    loading: status === 'loading' || status === 'idle',
+    error: null,
   };
 };
 
@@ -39,7 +38,7 @@ export const useFields = () => {
 
   return {
     fields,
-    loading: status === 'loading',
+    loading: status === 'loading' || status === 'idle',
   };
 };
 
@@ -49,6 +48,6 @@ export const useSchedules = () => {
 
   return {
     schedules,
-    loading: status === 'loading',
+    loading: status === 'loading' || status === 'idle',
   };
 };
