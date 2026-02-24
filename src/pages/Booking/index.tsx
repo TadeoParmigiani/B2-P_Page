@@ -37,6 +37,7 @@ function BookingSection() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    console.log("Cargando datos iniciales...");
     dispatch(fetchFields());
     dispatch(fetchBookings());
     dispatch(fetchSchedules());
